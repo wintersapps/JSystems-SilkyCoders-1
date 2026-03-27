@@ -180,8 +180,8 @@ One message in the conversation for a session.
 - **Content-Type:** `application/json`
 - **Request body:** `{ "content": "user message text" }`
 - **Response (200):** `text/plain;charset=UTF-8` — Vercel data stream format, streamed
-    - Each text chunk: `0:"<JSON-escaped text>"\n`
-    - Finish signal: `d:{"finishReason":"stop"}\n`
+  - Each text chunk: `0:"<JSON-escaped text>"\n`
+  - Finish signal: `d:{"finishReason":"stop"}\n`
 - **Response (404):** session not found
 - **Notes:** Backend loads full message history from DB + reconstructs system prompt + calls OpenAI. Persists new USER and ASSISTANT messages to DB during/after streaming.
 
@@ -208,12 +208,12 @@ The OpenAI Java SDK automatically picks up `OPENAI_API_KEY` and `OPENAI_BASE_URL
 **Decision:** Use the official OpenAI Java SDK. It maps directly to the OpenAI Chat Completions API, supports `baseUrl` override for OpenRouter out of the box, and has a stable streaming API. Spring AI introduces an abstraction layer that is unnecessary for a PoC and has less mature OpenRouter support.
 **Rejected alternatives:**
 - Spring AI: Adds abstraction overhead, additional config, and less direct control over the request format (important for multimodal image payloads).
-  **Consequences:**
+**Consequences:**
 - (+) Direct API control, predictable behavior, official SDK with good docs
 - (+) OpenRouter works via simple `baseUrl` + `apiKey` override
 - (-) Not Spring-idiomatic; manual bean configuration required
 - (-) If project grows to multi-provider, Spring AI's abstraction would be more convenient
-  **Review trigger:** If we need to support multiple LLM providers with different APIs, or if Spring AI's OpenRouter support matures.
+**Review trigger:** If we need to support multiple LLM providers with different APIs, or if Spring AI's OpenRouter support matures.
 
 ---
 
@@ -223,10 +223,10 @@ The OpenAI Java SDK automatically picks up `OPENAI_API_KEY` and `OPENAI_BASE_URL
 **Decision:** Initial form submission (`POST /api/sessions`) returns a plain JSON response with the full AI message (non-streaming). The frontend shows a loading spinner. Chat continuation (`POST /api/sessions/{id}/messages`) uses SSE streaming. This separates the complex multipart image handling from streaming.
 **Rejected alternatives:**
 - Full streaming from the start: Requires either base64-encoding the image in JSON (bypasses multipart) or chunked streaming over multipart — both complex for PoC.
-  **Consequences:**
+**Consequences:**
 - (+) Simpler backend, fewer integration edge cases
 - (-) Initial analysis has a perceivable loading delay (no progressive output)
-  **Review trigger:** If UX testing shows the loading delay is unacceptable for initial analysis.
+**Review trigger:** If UX testing shows the loading delay is unacceptable for initial analysis.
 
 ---
 
@@ -237,10 +237,10 @@ The OpenAI Java SDK automatically picks up `OPENAI_API_KEY` and `OPENAI_BASE_URL
 **Rejected alternatives:**
 - Raw SSE (`text/event-stream`): Would require custom adapter in the frontend to translate SSE events into the data stream format that `useChat` expects.
 - useLocalRuntime (non-streaming): Loses the streaming UX required by the PRD.
-  **Consequences:**
+**Consequences:**
 - (+) Native integration with assistant-ui and useChat — no custom stream parsing on frontend
 - (-) Backend must produce exactly the right format; incorrect escaping will break the client
-  **Review trigger:** If assistant-ui upgrades to a different default protocol (check on version upgrade).
+**Review trigger:** If assistant-ui upgrades to a different default protocol (check on version upgrade).
 
 ---
 
@@ -251,11 +251,11 @@ The OpenAI Java SDK automatically picks up `OPENAI_API_KEY` and `OPENAI_BASE_URL
 **Rejected alternatives:**
 - H2 in-file mode: Compatible but less standard, not usable by external tools.
 - PostgreSQL: Production-grade but requires Docker/server setup — overkill for PoC.
-  **Consequences:**
+**Consequences:**
 - (+) Zero infrastructure overhead, file-based, easy to inspect
 - (-) No concurrent write support (single writer) — not a concern for PoC
 - (-) Must be swapped out before any multi-instance production deployment
-  **Review trigger:** If concurrent sessions exceed ~10 simultaneous users or if we add horizontal scaling.
+**Review trigger:** If concurrent sessions exceed ~10 simultaneous users or if we add horizontal scaling.
 
 ---
 

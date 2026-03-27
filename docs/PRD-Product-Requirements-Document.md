@@ -48,7 +48,7 @@ Steps 1–5 same as Flow A, with "Reklamacja" selected as intent.
 
 6. Application sends the form data and image to the AI model. Context includes: `docs/regulamin.md` + `docs/reklamacje.md`.
 7. AI analyzes: type of damage visible in the photo, whether it looks like a manufacturing defect vs. damage from use, policy eligibility (2-year window stated in description).
-   8–10. Same as Flow A.
+8–10. Same as Flow A.
 
 ### Flow C — Returning user (session resume)
 
@@ -234,9 +234,9 @@ flowchart TD
 1. **Role**: You are an AI assistant for Sinsay online store. Your purpose is to help customers estimate whether their return (zwrot) or complaint (reklamacja) is likely to be accepted based on Sinsay's policies and the product photo provided.
 
 2. **Decision categories**:
-    - **Likely accepted** — image and description clearly meet policy requirements.
-    - **Likely rejected** — image or description clearly violates policy requirements (e.g., product shows signs of heavy use for a return, or damage appears to be from user misuse rather than a defect for a complaint).
-    - **Unclear — requires manual review** — image quality is insufficient, the case is borderline, or the damage type is ambiguous.
+   - **Likely accepted** — image and description clearly meet policy requirements.
+   - **Likely rejected** — image or description clearly violates policy requirements (e.g., product shows signs of heavy use for a return, or damage appears to be from user misuse rather than a defect for a complaint).
+   - **Unclear — requires manual review** — image quality is insufficient, the case is borderline, or the damage type is ambiguous.
 
 3. **Mandatory disclaimer** in every initial decision response: clearly state that this assessment is not legally binding, is an estimate only, and that the final binding decision is always made by a Sinsay customer support agent.
 

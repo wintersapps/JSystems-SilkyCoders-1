@@ -168,11 +168,11 @@ App.tsx mounts
 **Rejected alternatives:**
 - `useLocalRuntime`: Would require manually reading the `ReadableStream` from `fetch` and parsing the Vercel data stream format — redundant since `useChatRuntime` does this automatically.
 - `useExternalStoreRuntime`: Designed for fully custom message stores; adds complexity without benefit for this use case.
-  **Consequences:**
+**Consequences:**
 - (+) Streaming, abort, message state management all handled by the library
 - (+) Session restore via `initialMessages` is clean
 - (-) Tied to Vercel AI SDK protocol — backend must match exactly
-  **Review trigger:** If assistant-ui deprecates `useChatRuntime` or changes the default protocol.
+**Review trigger:** If assistant-ui deprecates `useChatRuntime` or changes the default protocol.
 
 ---
 
@@ -183,7 +183,7 @@ App.tsx mounts
 **Consequences:**
 - (+) User gets immediate error without submitting
 - (-) Slightly duplicated logic (client JS + backend Java)
-  **Review trigger:** N/A — standard practice.
+**Review trigger:** N/A — standard practice.
 
 ---
 
@@ -193,10 +193,10 @@ App.tsx mounts
 **Decision:** Both form and chat are rendered by the same `App.tsx` root component. A single piece of state (`view: 'form' | 'chat'`) controls which is shown. No routing library needed. No URL changes.
 **Rejected alternatives:**
 - React Router: Adds dependency and URL management for a two-screen PoC — unnecessary.
-  **Consequences:**
+**Consequences:**
 - (+) Minimal setup, no routing edge cases (back button, deep links)
 - (-) No bookmarkable URLs for specific sessions
-  **Review trigger:** If the app grows to more than 2 screens.
+**Review trigger:** If the app grows to more than 2 screens.
 
 ---
 
@@ -207,7 +207,7 @@ App.tsx mounts
 **Consequences:**
 - (+) Clean separation: no CORS config needed in prod; dev matches prod behavior for API paths
 - (-) Proxy config must be maintained in `vite.config.ts`
-  **Review trigger:** If deployment changes to separate FE/BE servers.
+**Review trigger:** If deployment changes to separate FE/BE servers.
 
 ---
 

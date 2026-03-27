@@ -126,8 +126,8 @@ Controllers do no business logic. They validate input, call services, and map re
 The request to OpenAI for the initial analysis includes:
 - `system` message: system prompt string (role description + policy docs + disclaimer instructions)
 - `user` message with two content parts:
-    1. Image content block: base64-encoded image as data URI (`data:<mimetype>;base64,<data>`)
-    2. Text content block: user's description of the problem
+  1. Image content block: base64-encoded image as data URI (`data:<mimetype>;base64,<data>`)
+  2. Text content block: user's description of the problem
 
 ### OpenAI API payload — chat continuation (conceptual)
 - `system` message: same policy-based system prompt (re-loaded from disk, not stored in DB)
@@ -188,10 +188,10 @@ The system prompt assembled by `PolicyDocService` must contain these sections in
 **Decision:** Spring WebMVC with `ResponseBodyEmitter`. The OpenAI Java SDK's async streaming (`createStreaming`) runs on its own thread pool. We bridge it to `ResponseBodyEmitter` from a `@Async` thread or executor service. WebMVC is simpler to set up and test; the reactive overhead of WebFlux is unnecessary for PoC.
 **Rejected alternatives:**
 - WebFlux + `Flux<String>`: More elegant for streaming but requires full reactive stack (different testing, config, driver compatibility for SQLite).
-  **Consequences:**
+**Consequences:**
 - (+) Simpler stack, familiar programming model, easier integration testing
 - (-) Blocking thread per open SSE connection — acceptable for PoC load (~handful of concurrent users)
-  **Review trigger:** If concurrent users exceed ~50 or if reactive features become needed elsewhere in the system.
+**Review trigger:** If concurrent users exceed ~50 or if reactive features become needed elsewhere in the system.
 
 ---
 
@@ -202,10 +202,10 @@ The system prompt assembled by `PolicyDocService` must contain these sections in
 **Rejected alternatives:**
 - Storing image to filesystem and passing URL: Requires public URL accessible by OpenAI — not feasible in local dev without tunneling.
 - Forwarding multipart to OpenAI: OpenAI Chat Completions API does not accept multipart — only JSON with base64 or URL.
-  **Consequences:**
+**Consequences:**
 - (+) No file storage, no cleanup needed, works fully locally
 - (-) Large images increase memory usage briefly (10 MB image in heap while encoding) — acceptable for PoC
-  **Review trigger:** If image size limit is raised significantly (>20 MB).
+**Review trigger:** If image size limit is raised significantly (>20 MB).
 
 ---
 
@@ -215,10 +215,10 @@ The system prompt assembled by `PolicyDocService` must contain these sections in
 **Decision:** Use `org.hibernate.community.dialect.SQLiteDialect` from `hibernate-community-dialects` artifact. JPA auto-creates tables (`spring.jpa.hibernate.ddl-auto=update` in dev, `validate` in prod-like). DB file path: `./sinsay_poc.db` relative to the `backend/` working directory (i.e., `backend/sinsay_poc.db` from the project root). Configurable via `SQLITE_DB_PATH` env var if needed.
 **Rejected alternatives:**
 - H2 file-mode: Compatible with Hibernate out of the box, but file is not a portable SQLite format — harder to inspect externally.
-  **Consequences:**
+**Consequences:**
 - (+) Standard SQLite format, inspectable with any SQLite tool
 - (-) Community dialect may lag behind Hibernate releases; must verify on Hibernate upgrade
-  **Review trigger:** On any Hibernate version upgrade; if production deployment is planned.
+**Review trigger:** On any Hibernate version upgrade; if production deployment is planned.
 
 ---
 

@@ -52,8 +52,8 @@ Choose based on complexity:
 - Multiple integration points or external services
 - Large scope requiring per-area ownership
 - Save as:
-    - `docs/ADR/000-main-architecture.md` — overall system, component map, main decisions
-    - `docs/ADR/001-[area].md`, `002-[area].md`, etc. — one file per technical area
+  - `docs/ADR/000-main-architecture.md` — overall system, component map, main decisions
+  - `docs/ADR/001-[area].md`, `002-[area].md`, etc. — one file per technical area
 
 File naming: use zero-padded numbers + short kebab-case description. Do NOT include "ADR" in the filename — the folder provides that context.
 Examples: `000-main-architecture.md`, `001-backend-api.md`, `002-frontend.md`, `003-database.md`
