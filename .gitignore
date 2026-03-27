@@ -46,3 +46,5 @@ frontend/dist
 ### Local / private (user-specific) Claude settings.
 # Should be ignored but I commit it as an example.
 .claude/settings.local.json
+
+.playwright-mcp/
