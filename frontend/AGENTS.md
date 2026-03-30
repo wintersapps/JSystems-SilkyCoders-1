@@ -1,67 +1,76 @@
 # Frontend Guidelines
 
-## Stack
-React 19 + TypeScript (strict) + Vite. UI: Shadcn/ui + Tailwind CSS. Chat: `@assistant-ui/react-ai-sdk`. All UI text in **Polish**.
+See root `AGENTS.md` for project overview. This file covers frontend-specific implementation rules.
 
-## Component Map
+## Tech Stack
+
+React 19, TypeScript (strict), Vite, Tailwind CSS, Shadcn/ui, assistant-ui, Vercel AI SDK
+
+## Component Structure
+
 ```
-frontend/src/
-├── App.tsx              Root — reads localStorage, toggles form ↔ chat (no router)
-├── components/
-│   ├── IntakeForm.tsx   5-field form, submits to POST /api/sessions
-│   ├── ChatView.tsx     Renders chat, "Nowa sesja" button, loads session history
-│   └── ImageUpload.tsx  Drag-and-drop + preview, inline validation
-└── hooks/
-    └── useSession.ts    localStorage read/write/clear for sinsay_session_id
+src/
+  App.tsx                 Root; reads sessionId from localStorage; renders IntakeForm or ChatView
+  components/
+    IntakeForm.tsx        5-field form + submit → POST /api/sessions
+    ChatView.tsx          Chat UI with assistant-ui + summary bar + "Nowa sesja" button
+    ImageUpload.tsx       Drag-and-drop + click; MIME/size validation; thumbnail preview
+  hooks/
+    useSession.ts         Read/write sessionId to localStorage (key: sinsay_session_id)
+  components/ui/          Shadcn/ui components
 ```
 
-## Form Fields & Validation
-| Field | Type | Rules |
-|---|---|---|
-| intent | radio | Required: `"RETURN"` or `"COMPLAINT"` |
-| orderNumber | text | Required, max 100 chars |
-| productName | text | Required, max 255 chars |
-| description | textarea | Required, max 5000 chars |
-| image | file | Required, JPEG/PNG/WebP/GIF only, max 10 MB |
+## Form Fields
 
-Validate on submit (not on keystroke). Show inline errors without scrolling. Image MIME + size checked client-side before submit.
+| Field         | Type                            | Validation                                 |
+|---------------|---------------------------------|--------------------------------------------|
+| `intent`      | radio — `RETURN` \| `COMPLAINT` | required                                   |
+| `orderNumber` | string                          | required                                   |
+| `productName` | string                          | required                                   |
+| `description` | string                          | required                                   |
+| `image`       | File                            | required; JPEG/PNG/WebP/GIF only; max 10MB |
 
-## Form → Chat Transition
+Validate with **Zod**. Show inline errors per field. Submit as `multipart/form-data` to `POST /api/sessions`.
+
+## Chat Integration
+
+Use `useChatRuntime` from `@assistant-ui/react-ai-sdk`:
+
+```ts
+const runtime = useChatRuntime({
+    api: `/api/sessions/${sessionId}/messages`,
+    initialMessages, // mapped from GET /api/sessions/{id} on session resume
+});
 ```
-submit → POST /api/sessions → { sessionId, message }
-  → localStorage.setItem('sinsay_session_id', sessionId)
-  → App switches to ChatView with initialMessages
-```
-`App.tsx` state: `{ view: 'form' | 'chat', sessionId: string | null }`. No routing library.
 
-## Chat Runtime
-```typescript
-useChatRuntime({
-  api: `/api/sessions/${sessionId}/messages`,
-  initialMessages: [...],  // Vercel AI SDK Message format
-})
-```
-Use `useChatRuntime` from `@assistant-ui/react-ai-sdk` — it handles the Vercel data stream format natively.
+Pass `runtime` to `<AssistantRuntimeProvider>`. Do NOT use `useLocalRuntime`.
 
-## Session Resume
-```
-App.tsx mounts
-  → read localStorage 'sinsay_session_id'
-  → if found: render ChatView (skip form)
-  → ChatView mounts: GET /api/sessions/{id}
-  → map messages → useChatRuntime initialMessages
-```
-"Nowa sesja" button: clear localStorage → switch to IntakeForm.
+## Session Flow
 
-## Dev Setup
-- `npm run dev` — Vite dev server on `:5173`, proxies `/api/*` to `http://localhost:8080`
-- `npm run build` — outputs to `../backend/src/main/resources/static/`
-- `npm run lint` — ESLint
-- `npm run test` — Vitest
+**New session:** Form submit → loading state → success: `{sessionId, message}` → write `sessionId` to localStorage →
+`App` switches to `ChatView` → initial AI message rendered.
 
-## TypeScript Rules
-- Strict mode enabled
-- Prefer `interface` over `type`
-- No `any`; use type guards for runtime safety
-- No `as` assertions unless unavoidable
-- PascalCase component names and file names
+**Resume session:** App mounts → reads `sinsay_session_id` from localStorage → renders `ChatView` →
+`GET /api/sessions/{id}` → maps history to `Message[]` → passed as `initialMessages`.
+
+**New session button:** Clear `sinsay_session_id` from localStorage → `App` switches back to `IntakeForm`.
+
+## Image Handling
+
+- Validate MIME type + file size on file selection (immediate inline error)
+- Resize to max 1024px on the longest side before upload (canvas resize)
+- Include as `image` field in multipart form
+
+## Vite Configuration
+
+- Dev proxy: `/api/*` → `http://localhost:8080`
+- Build output: `../backend/src/main/resources/static/`
+- All UI text must be in **Polish**
+
+## Completion Criteria
+
+- All tests and ESLint pass
+- Check the application visually, use puppeter to make a screen and align it with:
+    - wireframe of the Form (view 1) `docs\wireframe-form.png`
+    - wireframe of decision and chat (view 2) `docs\wireframe-decision+chat.png`
+    - screen of Sinsay Home Page `assets\sinsay-homepage.png`

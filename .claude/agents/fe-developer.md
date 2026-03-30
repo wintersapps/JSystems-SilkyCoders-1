@@ -1,6 +1,6 @@
 ---
 name: fe-developer
-description: "Use this agent when implementing, modifying, testing or debugging Frontend React code."
+description: "Use this agent when implementing, modifying, testing or debugging Frontend React code. Use this agent proactively!"
 model: sonnet
 color: blue
 memory: project

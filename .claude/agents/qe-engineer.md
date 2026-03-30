@@ -1,6 +1,6 @@
 ---
 name: qa-engineer
-description: "Use this agent when doing Quality Assurance and Playwright E2E Tests."
+description: "Use this agent when doing Quality Assurance and Playwright E2E Tests. Use this agent proactively!"
 model: sonnet
 color: red
 memory: project

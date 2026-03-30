@@ -1,108 +1,94 @@
 # Backend Guidelines
 
+See root `AGENTS.md` for project overview. This file covers backend-specific implementation rules.
+
+## Tech Stack
+
+- Java 21, Spring Boot 3.5.9, Spring Web MVC, Lombok
+- **OpenAI Java SDK** (official) — NOT Spring AI
+- LLM provider: OpenRouter (OpenAI-compatible endpoint)
+- Persistence: SQLite via Hibernate Community Dialects + JPA
+- Build: Maven (`backend/pom.xml`), no root aggregator
+
+## Environment Variables
+
+| Variable           | Required | Default                        |
+|--------------------|----------|--------------------------------|
+| `OPENAI_API_KEY`   | yes      | —                              |
+| `OPENAI_BASE_URL`  | yes      | `https://openrouter.ai/api/v1` |
+| `OPENAI_MODEL`     | no       | `openai/gpt-4o-mini`           |
+| `POLICY_DOCS_PATH` | no       | `../docs`                      |
+
 ## Package Structure
-```
-src/main/java/com/sinsay/
-├── config/       AppConfig, OpenAIConfig, WebConfig
-├── controller/   SessionController, ChatController
-├── service/      AnalysisService, ChatService, PolicyDocService
-├── repository/   SessionRepository, ChatMessageRepository (JPA)
-└── model/        Session, ChatMessage (JPA entities + Lombok)
-```
-> Current starter uses `com.silkycoders1.jsystemssilkycodders1`. Migrate to `com.sinsay` when implementing the PoC.
 
-## Component Responsibilities
+`com.sinsay` — use this package for all new classes:
 
-### Controllers
-- `SessionController`: `POST /api/sessions` (multipart validation → AnalysisService → JSON), `GET /api/sessions/{id}` (load + 404)
-- `ChatController`: `POST /api/sessions/{id}/messages` (load session/history → ChatService → `ResponseBodyEmitter`)
+- `config/` — `WebConfig` (CORS), `OpenAiConfig`
+- `controller/` — `SessionController`, `ChatController`
+- `service/` — `AnalysisService`, `ChatService`, `PolicyDocService`
+- `model/` — `Session`, `ChatMessage` (JPA entities)
+- `repository/` — `SessionRepository`, `ChatMessageRepository`
 
-### Services
-- `AnalysisService`: receives validated form + image → base64-encodes image → calls PolicyDocService → builds prompt → calls OpenAI (synchronous) → persists Session + first ChatMessages → returns `{sessionId, message}`
-- `ChatService`: receives session + history + new message → persists USER message → calls `openAIClient.chat().completions().createStreaming()` → writes Vercel chunks to `ResponseBodyEmitter` → writes finish line → calls `emitter.complete()` → persists ASSISTANT message
-- `PolicyDocService`: reads `.md` files from `POLICY_DOCS_PATH` (env var, default `../docs`). `getSystemPrompt(RETURN)` includes regulamin + zwrot-30-dni; `getSystemPrompt(COMPLAINT)` includes regulamin + reklamacje.
+## API Contracts
 
-### Config
-- `OpenAIConfig`: creates `OpenAIClient` bean via `OpenAIOkHttpClient.builder()`. Reads `OPENAI_API_KEY`, `OPENAI_BASE_URL` from environment; `OPENAI_MODEL` from Spring properties.
-- `WebConfig`: CORS allow `http://localhost:5173` **in `dev` profile only**.
+| Method | Path                          | Body                                                             | Response                     |
+|--------|-------------------------------|------------------------------------------------------------------|------------------------------|
+| `POST` | `/api/sessions`               | multipart (intent, orderNumber, productName, description, image) | `{sessionId, message}` JSON  |
+| `GET`  | `/api/sessions/{id}`          | —                                                                | `{session, messages[]}` JSON |
+| `POST` | `/api/sessions/{id}/messages` | `{content}` JSON                                                 | `text/plain` Vercel stream   |
 
 ## Data Models
 
-### Session
-| Field | Type | Notes |
-|---|---|---|
-| id | UUID | Primary key |
-| intent | Enum: RETURN / COMPLAINT | Determines policy docs |
-| orderNumber | String (max 100) | |
-| productName | String (max 255) | |
-| description | TEXT | |
-| createdAt | LocalDateTime | |
+**Session**: `id` (UUID), `intent` (RETURN/COMPLAINT), `orderNumber`, `productName`, `description`, `createdAt`
 
-### ChatMessage
-| Field | Type | Notes |
-|---|---|---|
-| id | UUID | Primary key |
-| sessionId | UUID | FK → Session |
-| role | Enum: USER / ASSISTANT | |
-| content | TEXT | |
-| sequenceNumber | Integer | 0-based ordering |
-| createdAt | LocalDateTime | |
+**ChatMessage**: `id` (UUID), `sessionId` (FK), `role` (USER/ASSISTANT), `content` (TEXT), `sequenceNumber`, `createdAt`
 
-## Multipart Validation (POST /api/sessions)
-- `intent`: required, `"RETURN"` or `"COMPLAINT"`
-- `orderNumber`: required, max 100 chars
-- `productName`: required, max 255 chars
-- `description`: required, max 5000 chars
-- `image`: required, max 10 MB, MIME must be `image/jpeg`, `image/png`, `image/webp`, or `image/gif`
+## Vercel Data Stream Format (CRITICAL)
 
-Return 400 for any validation failure.
+`POST /api/sessions/{id}/messages` must return `text/plain;charset=UTF-8` with chunked encoding:
 
-## Image Handling
-Base64-encode `MultipartFile` bytes → construct data URI: `data:<mimeType>;base64,<encoded>`. No file storage. Pass as image content part in the OpenAI message alongside the text description.
-
-## Vercel Data Stream Encoding
 ```
-Content-Type: text/plain;charset=UTF-8
-X-Vercel-AI-Data-Stream: v1
-
 0:"Hello"\n
 0:" world"\n
 d:{"finishReason":"stop"}\n
 ```
-Escaping: `"` → `\"`, `\` → `\\`, newline → `\\n`. Lines end with `\n` (not `\r\n`).
 
-## SQLite Setup
-- Dialect: `org.hibernate.community.dialect.SQLiteDialect` (from `hibernate-community-dialects`)
-- DB file: `sinsay_poc.db` (next to the JAR, in `backend/` during dev)
-- `spring.jpa.hibernate.ddl-auto=update` in dev
+**Escaping**: `"` → `\"`, newline `\n` → `\\n`. Use `ResponseBodyEmitter` (not `Flux`).
 
-## Required Maven Dependencies (to add to pom.xml)
-```xml
-<!-- OpenAI Java SDK -->
-<dependency>
-  <groupId>com.openai</groupId>
-  <artifactId>openai-java</artifactId>
-  <version><!-- check latest --></version>
-</dependency>
-<!-- Spring Data JPA -->
-<dependency>
-  <groupId>org.springframework.boot</groupId>
-  <artifactId>spring-boot-starter-data-jpa</artifactId>
-</dependency>
-<!-- SQLite driver -->
-<dependency>
-  <groupId>org.xerial</groupId>
-  <artifactId>sqlite-jdbc</artifactId>
-</dependency>
-<!-- SQLite Hibernate dialect -->
-<dependency>
-  <groupId>org.hibernate.community</groupId>
-  <artifactId>hibernate-community-dialects</artifactId>
-</dependency>
-<!-- H2 for tests -->
-<dependency>
-  <groupId>com.h2database</groupId>
-  <artifactId>h2</artifactId>
-  <scope>test</scope>
-</dependency>
-```
+## Initial Analysis (Non-Streaming)
+
+`POST /api/sessions` uses `AnalysisService`:
+
+1. Validate multipart fields (all required) + image (JPEG/PNG/WebP/GIF, max 10MB)
+2. Base64-encode image inline (do not write to disk)
+3. Load policy docs via `PolicyDocService` based on intent
+4. Call OpenAI SDK synchronously (non-streaming)
+5. Persist `Session` + initial `ChatMessage` (ASSISTANT role) to SQLite
+6. Return `{sessionId, message}` JSON
+
+## Chat Continuation (Streaming)
+
+`POST /api/sessions/{id}/messages` uses `ChatService`:
+
+1. Persist user `ChatMessage`
+2. Load full session history from DB
+3. Assemble system prompt (see below)
+4. Call OpenAI SDK with streaming enabled
+5. Write each chunk to `ResponseBodyEmitter` in Vercel format
+6. Persist assembled assistant response on stream completion
+
+## System Prompt Structure
+
+The system prompt sent to the LLM must include these 6 sections in order:
+
+1. Role definition (returns/complaints evaluator for Sinsay)
+2. Decision categories: "Prawdopodobnie zaakceptowane" / "Prawdopodobnie odrzucone" / "Niejasne"
+3. Mandatory disclaimer (assessment is non-binding, human makes final decision)
+4. Scope boundary (answer only Sinsay policy questions; redirect off-topic)
+5. Language instruction (always respond in Polish)
+6. Policy document content (concatenated markdown, intent-specific)
+
+**Policy doc selection** per intent:
+
+- `RETURN`: `regulamin.md` + `zwrot-30-dni.md`
+- `COMPLAINT`: `regulamin.md` + `reklamacje.md`

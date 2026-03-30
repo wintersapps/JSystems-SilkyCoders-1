@@ -2,9 +2,12 @@
 
 ## Project
 
-**Sinsay AI PoC** — multimodal AI assistant for e-commerce returns (*Zwrot*) and complaints (*Reklamacja*). Users submit a form with photo; backend analyzes against Sinsay policy docs using an LLM; result is streamed as a chat conversation. All user-facing text in **Polish**.
+**Sinsay AI PoC** — multimodal AI assistant for e-commerce returns (*Zwrot*) and complaints (*Reklamacja*). Users submit
+a form with photo; backend analyzes against Sinsay policy docs using an LLM; result is streamed as a chat conversation.
+All user-facing text in **Polish**.
 
 **Key docs** (read before making changes):
+
 - `docs/PRD-Product-Requirements-Document.md` — product requirements and acceptance criteria
 - `docs/ADR/000-main-architecture.md` — architecture overview and data models
 - `docs/ADR/001-backend.md` — backend implementation details
@@ -45,7 +48,8 @@ cd frontend && npm run format:check      # Prettier
 
 ## Critical Integration: Vercel Data Stream Protocol
 
-The frontend uses `useChatRuntime` from `@assistant-ui/react-ai-sdk`. The backend SSE response **must** use Vercel AI SDK data stream format or streaming will break:
+The frontend uses `useChatRuntime` from `@assistant-ui/react-ai-sdk`. The backend SSE response **must** use Vercel AI
+SDK data stream format or streaming will break:
 
 ```
 Content-Type: text/plain;charset=UTF-8
@@ -63,19 +67,24 @@ Escape rules: `"` → `\"`, newline → `\\n`. Use `ResponseBodyEmitter`, not `F
 
 **Java:** 4-space indent, Spring Boot conventions. Package: `com.sinsay`. Tests: `*Tests` suffix.
 
-**TypeScript:** Strict mode. Always annotate types. Prefer `interface` over `type`. No `any`, no `as`/`!` assertions. Use type guards for runtime narrowing. Functional components with TypeScript interfaces.
+**TypeScript:** Strict mode. Always annotate types. Prefer `interface` over `type`. No `any`, no `as`/`!` assertions.
+Use type guards for runtime narrowing. Functional components with TypeScript interfaces.
 
 ---
 
 ## Agent Workflow
 
 ### Before Starting Any Task
-1. Read the relevant PRD (`docs/PRD-Product-Requirements-Document.md`) and ADR files (`docs/ADR/`) for the affected area.
+
+1. Read the relevant PRD (`docs/PRD-Product-Requirements-Document.md`) and ADR files (`docs/ADR/`) for the affected
+   area.
 2. Read `backend/AGENTS.md` if the task touches `backend/`, or `frontend/AGENTS.md` if it touches `frontend/`.
 3. Define the expected behavior from the specification before writing or changing any code.
 
 ### TDD Rules
+
 For every feature and bug fix:
+
 1. Start from the specification, not the existing implementation.
 2. Write or extend tests **before** production code.
 3. Run the new tests and confirm they fail for the expected reason.
@@ -88,12 +97,14 @@ If the area has no suitable test infrastructure yet, add it as part of the task 
 ### Verification (required before every commit)
 
 **Backend** (run from `backend/`):
+
 ```bash
 ./mvnw test          # all JUnit tests pass
 ./mvnw clean package # build succeeds
 ```
 
 **Frontend** (run from `frontend/`):
+
 ```bash
 npm test             # Vitest passes
 npm run lint         # ESLint — no errors
@@ -104,13 +115,16 @@ npm run build        # Vite build succeeds
 Verify only the scope relevant to your change. If the change affects runtime behavior, confirm the app starts correctly.
 
 ### Commit Rules
+
 - Commit only after verification passes and the changed scope is in a working state.
 - Keep commits focused: one logical change per commit.
 - Format: `Area: short summary` (e.g. `Backend:`, `Frontend:`, `Docs:`)
 - Do **not** push to remote unless the user explicitly asks.
 
 ### Completion Criteria
+
 A task is complete only when:
+
 - Implementation matches the relevant PRD, ADR, and design guidance
 - Tests were written first and pass honestly
 - Verification for the changed scope passed with no errors or warnings
@@ -120,13 +134,13 @@ A task is complete only when:
 
 ## Context7 MCP Library IDs
 
-| Library | Context7 ID |
-|---|---|
-| OpenAI Java SDK | `/openai/openai-java` |
-| Spring Boot | `/spring-projects/spring-boot` |
-| Lombok | `/projectlombok/lombok` |
-| Vercel AI SDK | `/vercel/ai` |
-| assistant-ui | `/assistant-ui/assistant-ui` |
-| React | `/reactjs/react.dev` |
-| Tailwind CSS | `/tailwindlabs/tailwindcss.com` |
-| Shadcn/ui | `/shadcn-ui/ui` |
+| Library         | Context7 ID                     |
+|-----------------|---------------------------------|
+| OpenAI Java SDK | `/openai/openai-java`           |
+| Spring Boot     | `/spring-projects/spring-boot`  |
+| Lombok          | `/projectlombok/lombok`         |
+| Vercel AI SDK   | `/vercel/ai`                    |
+| assistant-ui    | `/assistant-ui/assistant-ui`    |
+| React           | `/reactjs/react.dev`            |
+| Tailwind CSS    | `/tailwindlabs/tailwindcss.com` |
+| Shadcn/ui       | `/shadcn-ui/ui`                 |

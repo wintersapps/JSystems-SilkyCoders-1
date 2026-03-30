@@ -1,6 +1,6 @@
 ---
 name: be-developer
-description: "Use this agent when implementing, modifying, testing or debugging Java Spring Boot backend code."
+description: "Use this agent when implementing, modifying, testing or debugging Java Spring Boot backend code. Use this agent proactively!"
 model: sonnet
 color: yellow
 memory: project
