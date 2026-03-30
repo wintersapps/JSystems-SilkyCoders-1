@@ -1,0 +1,2 @@
+- [Playwright + Node 18.12 ESM](feedback_playwright_node_esm.md) — use @playwright/test@1.49.1 + playwright.config.cjs + .spec.js; exclude e2e from Vitest
+- [Playwright locator patterns](feedback_playwright_locators.md) — sr-only radios, hidden file input, image error strict-mode, chat composer input, route override

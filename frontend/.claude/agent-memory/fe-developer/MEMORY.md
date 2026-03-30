@@ -1,0 +1,1 @@
+- [assistant-ui jsdom mocks](feedback_assistant_ui_testing.md) — ResizeObserver + scrollTo polyfills required; ThreadPrimitive.Messages doesn't render in jsdom; use useThread hook instead
