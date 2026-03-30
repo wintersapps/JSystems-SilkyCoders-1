@@ -28,3 +28,13 @@ class MockImage {
 }
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 ;(global as any).Image = MockImage
+
+// jsdom does not implement ResizeObserver (used by assistant-ui)
+global.ResizeObserver = class ResizeObserver {
+  observe() {}
+  unobserve() {}
+  disconnect() {}
+}
+
+// jsdom does not implement Element.scrollTo (used by assistant-ui viewport auto-scroll)
+Element.prototype.scrollTo = function () {}
