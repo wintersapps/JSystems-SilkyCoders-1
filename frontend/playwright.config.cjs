@@ -1,0 +1,21 @@
+const { defineConfig, devices } = require('@playwright/test')
+
+module.exports = defineConfig({
+  testDir: './tests/e2e',
+  fullyParallel: false,
+  retries: 0,
+  use: {
+    baseURL: 'http://localhost:5173',
+    screenshot: 'on',
+    trace: 'retain-on-failure',
+  },
+  projects: [
+    { name: 'chromium', use: { ...devices['Desktop Chrome'] } },
+  ],
+  webServer: {
+    command: 'npm run dev',
+    url: 'http://localhost:5173',
+    reuseExistingServer: true,
+    timeout: 30000,
+  },
+})
