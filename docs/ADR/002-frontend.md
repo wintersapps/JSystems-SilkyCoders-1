@@ -67,14 +67,17 @@ Custom hook:
 
 ### ChatRuntime setup
 Uses `useChatRuntime` from `@assistant-ui/react-ai-sdk`:
-```
+```typescript
+import { useChatRuntime, AssistantChatTransport } from "@assistant-ui/react-ai-sdk";
+
 useChatRuntime({
-  api: `/api/sessions/${sessionId}/messages`,
+  transport: new AssistantChatTransport({
+    api: `/api/sessions/${sessionId}/messages`,
+  }),
   initialMessages: [...],  // pre-populated from API load or form response
-  body: {},                // no extra body fields needed
 })
 ```
-The `api` prop points to the Spring Boot streaming endpoint. `useChatRuntime` handles the Vercel data stream protocol automatically.
+`AssistantChatTransport` is the current API (direct `api` prop on `useChatRuntime` is legacy). The transport POSTs a `{ messages: UIMessage[] }` body to the Spring Boot endpoint. `useChatRuntime` handles the Vercel data stream response protocol automatically.
 
 ### Image upload sub-component
 - Renders a drag-and-drop zone with click-to-browse fallback
@@ -111,15 +114,22 @@ The `api` prop points to the Spring Boot streaming endpoint. `useChatRuntime` ha
 ```
 
 ### Message format for useChat / useChatRuntime
-The `initialMessages` array passed to `useChatRuntime` must use the Vercel AI SDK `Message` type:
-```
+The `initialMessages` array passed to `useChatRuntime` must use the Vercel AI SDK `UIMessage` type:
+```typescript
 {
   id: string,
   role: 'user' | 'assistant',
-  content: string
+  content: Array<{ type: 'text', text: string }>
 }
 ```
-Messages loaded from `GET /api/sessions/{id}` are mapped to this format before passing to the runtime.
+`content` is an **array of part objects**, not a plain string. Messages loaded from `GET /api/sessions/{id}` must be mapped to this format before passing to the runtime:
+```typescript
+messages.map(m => ({
+  id: m.id,
+  role: m.role.toLowerCase() as 'user' | 'assistant',
+  content: [{ type: 'text' as const, text: m.content }],
+}))
+```
 
 ### localStorage entry
 Key: `sinsay_session_id`

@@ -87,8 +87,15 @@ Controllers do no business logic. They validate input, call services, and map re
 - `description`: String, required, max 5000 chars
 - `image`: MultipartFile, required, max 10 MB, content type must be one of: `image/jpeg`, `image/png`, `image/webp`, `image/gif`
 
-**Chat message request** (JSON body):
-- `content`: String, required, max 5000 chars
+**Chat message request** (JSON body — standard assistant-ui `UIMessage` array):
+```json
+{
+  "messages": [
+    { "role": "user", "content": [{ "type": "text", "text": "user message text" }] }
+  ]
+}
+```
+Backend extracts the last message's text: `messages[last].content[0].text`. Maximum 5000 chars for the extracted text. The `messages` array sent by the frontend contains the new user message only (assistant-ui sends the delta, not full history — backend reconstructs full history from DB).
 
 ### Response DTOs
 

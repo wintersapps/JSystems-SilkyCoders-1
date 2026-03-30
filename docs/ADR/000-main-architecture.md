@@ -178,7 +178,11 @@ One message in the conversation for a session.
 
 ### POST `/api/sessions/{sessionId}/messages` — Continue conversation (streaming)
 - **Content-Type:** `application/json`
-- **Request body:** `{ "content": "user message text" }`
+- **Request body:** standard assistant-ui `UIMessage` array:
+  ```json
+  { "messages": [{ "role": "user", "content": [{ "type": "text", "text": "user message text" }] }] }
+  ```
+  Backend extracts `messages[last].content[0].text` as the new user message; full history is always reconstructed from DB.
 - **Response (200):** `text/plain;charset=UTF-8` — Vercel data stream format, streamed
   - Each text chunk: `0:"<JSON-escaped text>"\n`
   - Finish signal: `d:{"finishReason":"stop"}\n`
