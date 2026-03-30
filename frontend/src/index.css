@@ -31,3 +31,34 @@
   --spacing-40: 40px;
   --spacing-48: 48px;
 }
+
+/* Global resets and brand typography */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  font-size: 16px;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  background-color: #ffffff;
+  color: #333333;
+  font-family:
+    'Euclid Circular B', 'Euclid', Arial, Helvetica, 'Helvetica Neue',
+    sans-serif;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Ensure full-height layout for chat view */
+#root {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}

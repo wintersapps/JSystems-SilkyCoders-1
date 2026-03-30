@@ -7,7 +7,14 @@ import { Textarea } from './ui/textarea'
 import { Label } from './ui/label'
 
 interface IntakeFormProps {
-  onSuccess: (sessionId: string, message: string, description: string) => void
+  onSuccess: (
+    sessionId: string,
+    message: string,
+    description: string,
+    intent: 'RETURN' | 'COMPLAINT',
+    orderNumber: string,
+    productName: string,
+  ) => void
 }
 
 interface FormState {
@@ -100,7 +107,15 @@ export function IntakeForm({ onSuccess }: IntakeFormProps) {
       }
 
       localStorage.setItem('sinsay_session_id', data.sessionId)
-      onSuccess(data.sessionId, data.message, form.description)
+      const intent = form.intent ?? 'RETURN'
+      onSuccess(
+        data.sessionId,
+        data.message,
+        form.description,
+        intent,
+        form.orderNumber,
+        form.productName,
+      )
     } catch {
       setErrors({ submit: 'Wystąpił błąd. Spróbuj ponownie.' })
       setIsLoading(false)
@@ -108,29 +123,38 @@ export function IntakeForm({ onSuccess }: IntakeFormProps) {
   }
 
   return (
-    <div className="min-h-screen bg-white">
-      {/* Header */}
-      <header className="border-b border-[#e3e4e5] py-4">
-        <div className="mx-auto max-w-lg px-4 text-center">
+    <div
+      className="min-h-screen flex flex-col items-center justify-center px-4 py-8"
+      style={{ backgroundColor: '#ffffff' }}
+    >
+      <div className="w-full max-w-[480px]">
+        {/* Logo */}
+        <div className="mb-6 text-center">
           <img src="/logo.svg" alt="Sinsay" className="mx-auto h-8" />
         </div>
-      </header>
 
-      <main className="mx-auto max-w-lg px-4 py-8">
         <h1
-          className="mb-6 text-center text-2xl font-semibold"
-          style={{ color: '#16181D' }}
+          className="mb-2 text-center font-semibold"
+          style={{ color: '#16181D', fontSize: '24px', fontWeight: 600 }}
         >
-          Sprawdź swoje zgłoszenie
+          Sprawdź zwrot lub reklamację
         </h1>
+        <p className="mb-6 text-center text-sm" style={{ color: '#7b7d80' }}>
+          Asystent AI Sinsay do obsługi zwrotów i reklamacji
+        </p>
 
-        <form onSubmit={(e) => void handleSubmit(e)} noValidate>
+        <form
+          onSubmit={(e) => void handleSubmit(e)}
+          noValidate
+          className="rounded-lg border p-6"
+          style={{ borderColor: '#e3e4e5' }}
+        >
           {/* Intent */}
           <div className="mb-4">
             <Label className="mb-2 block text-sm font-medium text-[#333333]">
-              Typ zgłoszenia
+              Rodzaj zgłoszenia *
             </Label>
-            <div className="flex gap-4">
+            <div className="flex gap-3">
               <label className="flex cursor-pointer items-center gap-2">
                 <input
                   type="radio"
@@ -140,9 +164,34 @@ export function IntakeForm({ onSuccess }: IntakeFormProps) {
                   onChange={() =>
                     setForm((prev) => ({ ...prev, intent: 'RETURN' }))
                   }
-                  className="h-4 w-4 accent-[#E09243]"
+                  className="sr-only"
                 />
-                <span className="text-sm">Zwrot</span>
+                <span
+                  className="flex items-center gap-2 rounded-full border px-4 py-2 text-sm font-medium transition-colors"
+                  style={
+                    form.intent === 'RETURN'
+                      ? {
+                          borderColor: '#E09243',
+                          backgroundColor: '#FFF2E5',
+                          color: '#16181D',
+                        }
+                      : {
+                          borderColor: '#e3e4e5',
+                          backgroundColor: '#ffffff',
+                          color: '#494a4d',
+                        }
+                  }
+                >
+                  <span
+                    className="inline-block h-4 w-4 rounded-full border-2 flex-shrink-0"
+                    style={
+                      form.intent === 'RETURN'
+                        ? { borderColor: '#E09243', backgroundColor: '#E09243' }
+                        : { borderColor: '#c8c9cc', backgroundColor: '#ffffff' }
+                    }
+                  />
+                  Zwrot
+                </span>
               </label>
               <label className="flex cursor-pointer items-center gap-2">
                 <input
@@ -153,9 +202,34 @@ export function IntakeForm({ onSuccess }: IntakeFormProps) {
                   onChange={() =>
                     setForm((prev) => ({ ...prev, intent: 'COMPLAINT' }))
                   }
-                  className="h-4 w-4 accent-[#E09243]"
+                  className="sr-only"
                 />
-                <span className="text-sm">Reklamacja</span>
+                <span
+                  className="flex items-center gap-2 rounded-full border px-4 py-2 text-sm font-medium transition-colors"
+                  style={
+                    form.intent === 'COMPLAINT'
+                      ? {
+                          borderColor: '#E09243',
+                          backgroundColor: '#FFF2E5',
+                          color: '#16181D',
+                        }
+                      : {
+                          borderColor: '#e3e4e5',
+                          backgroundColor: '#ffffff',
+                          color: '#494a4d',
+                        }
+                  }
+                >
+                  <span
+                    className="inline-block h-4 w-4 rounded-full border-2 flex-shrink-0"
+                    style={
+                      form.intent === 'COMPLAINT'
+                        ? { borderColor: '#E09243', backgroundColor: '#E09243' }
+                        : { borderColor: '#c8c9cc', backgroundColor: '#ffffff' }
+                    }
+                  />
+                  Reklamacja
+                </span>
               </label>
             </div>
             {errors.intent && (
@@ -171,7 +245,7 @@ export function IntakeForm({ onSuccess }: IntakeFormProps) {
               htmlFor="orderNumber"
               className="mb-1 block text-sm font-medium text-[#333333]"
             >
-              Numer zamówienia
+              Numer zamówienia *
             </Label>
             <Input
               id="orderNumber"
@@ -195,7 +269,7 @@ export function IntakeForm({ onSuccess }: IntakeFormProps) {
               htmlFor="productName"
               className="mb-1 block text-sm font-medium text-[#333333]"
             >
-              Nazwa produktu
+              Nazwa produktu *
             </Label>
             <Input
               id="productName"
@@ -219,7 +293,7 @@ export function IntakeForm({ onSuccess }: IntakeFormProps) {
               htmlFor="description"
               className="mb-1 block text-sm font-medium text-[#333333]"
             >
-              Opis problemu
+              Opis problemu *
             </Label>
             <Textarea
               id="description"
@@ -278,7 +352,7 @@ export function IntakeForm({ onSuccess }: IntakeFormProps) {
             {isLoading ? 'Analizuję...' : 'Sprawdź'}
           </button>
         </form>
-      </main>
+      </div>
     </div>
   )
 }

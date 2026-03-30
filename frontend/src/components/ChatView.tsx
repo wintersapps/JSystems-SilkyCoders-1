@@ -88,10 +88,20 @@ function ThreadMessages() {
             }
           >
             <div
-              className={
+              className="px-4 py-3 max-w-[80%] text-sm"
+              style={
                 msg.role === 'user'
-                  ? 'bg-blue-600 text-white rounded-2xl rounded-br-sm px-4 py-2 max-w-[80%] text-sm'
-                  : 'bg-gray-100 text-gray-900 rounded-2xl rounded-bl-sm px-4 py-2 max-w-[80%] text-sm'
+                  ? {
+                      backgroundColor: '#E09243',
+                      color: '#ffffff',
+                      borderRadius: '16px 16px 2px 16px',
+                    }
+                  : {
+                      backgroundColor: '#f1f2f4',
+                      color: '#16181D',
+                      borderRadius: '16px 16px 16px 2px',
+                      border: '1px solid #e3e4e5',
+                    }
               }
             >
               {text}
@@ -123,14 +133,29 @@ function ChatRuntimeView({ sessionId, messages }: ChatRuntimeViewProps) {
           <ThreadMessages />
         </div>
 
-        <div className="border-t border-gray-200 p-4">
+        <div className="p-4" style={{ borderTop: '1px solid #e3e4e5' }}>
           <ComposerPrimitive.Root className="flex gap-2 items-end">
             <ComposerPrimitive.Input
-              className="flex-1 resize-none rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 min-h-[40px] max-h-[120px]"
-              placeholder="Napisz wiadomość..."
+              className="flex-1 resize-none px-3 py-2 text-sm focus:outline-none min-h-[40px] max-h-[120px]"
+              style={{
+                border: '1px solid #e3e4e5',
+                borderRadius: '4px',
+                color: '#333333',
+              }}
+              placeholder="Zadaj pytanie..."
               rows={1}
             />
-            <ComposerPrimitive.Send className="bg-blue-600 hover:bg-blue-700 text-white rounded-lg px-4 py-2 text-sm font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+            <ComposerPrimitive.Send
+              className="text-sm font-semibold transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              style={{
+                backgroundColor: '#E09243',
+                color: '#ffffff',
+                border: '1.6px solid #E09243',
+                borderRadius: '0px',
+                padding: '10px 20px',
+                cursor: 'pointer',
+              }}
+            >
               Wyślij
             </ComposerPrimitive.Send>
           </ComposerPrimitive.Root>
@@ -172,16 +197,35 @@ export function ChatView({
 
   return (
     <div className="flex flex-col h-full">
-      <div className="flex items-center justify-between px-4 py-3 border-b border-gray-200 bg-white">
-        <div className="flex items-center gap-4 text-sm">
-          <span className="font-semibold text-gray-900">{intentLabel}</span>
-          <span className="text-gray-600">{productName}</span>
-          <span className="text-gray-500">{orderNumber}</span>
+      {/* Summary bar — dark brand background */}
+      <div
+        className="flex flex-wrap items-center justify-between gap-2 px-4 py-3"
+        style={{ backgroundColor: '#16181D' }}
+      >
+        <div className="flex flex-wrap items-center gap-2 text-sm min-w-0">
+          <span className="font-semibold shrink-0" style={{ color: '#ffffff' }}>
+            [{intentLabel}]
+          </span>
+          <span className="shrink-0" style={{ color: '#afb0b2' }}>
+            {orderNumber}
+          </span>
+          <span style={{ color: '#afb0b2' }}>-</span>
+          <span className="truncate" style={{ color: '#afb0b2' }}>
+            {productName}
+          </span>
         </div>
         <button
           type="button"
           onClick={onNewSession}
-          className="text-sm text-blue-600 hover:text-blue-800 font-medium transition-colors"
+          className="shrink-0 text-sm font-semibold transition-colors"
+          style={{
+            color: '#ffffff',
+            border: '1.6px solid #ffffff',
+            borderRadius: '0px',
+            padding: '6px 16px',
+            backgroundColor: 'transparent',
+            cursor: 'pointer',
+          }}
         >
           Nowa sesja
         </button>

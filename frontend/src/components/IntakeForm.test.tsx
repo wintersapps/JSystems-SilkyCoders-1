@@ -23,8 +23,8 @@ describe('IntakeForm', () => {
   // TAC-FE-08: Polish text
   it('renders all labels in Polish', () => {
     render(<IntakeForm onSuccess={() => {}} />)
-    expect(screen.getByText(/zwrot/i)).toBeInTheDocument()
-    expect(screen.getByText(/reklamacja/i)).toBeInTheDocument()
+    expect(screen.getAllByText(/zwrot/i).length).toBeGreaterThanOrEqual(1)
+    expect(screen.getAllByText(/reklamacja/i).length).toBeGreaterThanOrEqual(1)
     expect(screen.getByText(/numer zamówienia/i)).toBeInTheDocument()
     expect(screen.getByText(/opis/i)).toBeInTheDocument()
   })
