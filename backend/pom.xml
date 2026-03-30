@@ -8,11 +8,11 @@
 		<version>3.5.9</version>
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
-	<groupId>com.silkycoders-1</groupId>
-	<artifactId>JSystems-SilkyCodders-1</artifactId>
+	<groupId>com.sinsay</groupId>
+	<artifactId>sinsay-poc</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>JSystems-SilkyCodders-1</name>
-	<description>JSystems-SilkyCodders-1</description>
+	<name>sinsay-poc</name>
+	<description>Sinsay AI PoC</description>
 	<url/>
 	<licenses>
 		<license/>
@@ -39,6 +39,30 @@
 			<groupId>org.projectlombok</groupId>
 			<artifactId>lombok</artifactId>
 			<optional>true</optional>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-data-jpa</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.xerial</groupId>
+			<artifactId>sqlite-jdbc</artifactId>
+			<scope>runtime</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.hibernate.orm</groupId>
+			<artifactId>hibernate-community-dialects</artifactId>
+			<scope>runtime</scope>
+		</dependency>
+		<dependency>
+			<groupId>com.h2database</groupId>
+			<artifactId>h2</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>com.openai</groupId>
+			<artifactId>openai-java</artifactId>
+			<version>4.20.0</version>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
