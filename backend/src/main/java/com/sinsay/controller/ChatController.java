@@ -5,6 +5,7 @@ import com.sinsay.model.Session;
 import com.sinsay.repository.ChatMessageRepository;
 import com.sinsay.repository.SessionRepository;
 import com.sinsay.service.ChatService;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -31,7 +32,8 @@ public class ChatController {
     @PostMapping(value = "/{id}/messages", produces = MediaType.TEXT_PLAIN_VALUE)
     public ResponseEntity<?> postMessage(
             @PathVariable UUID id,
-            @RequestBody Map<String, Object> body) {
+            @RequestBody Map<String, Object> body,
+            HttpServletResponse response) {
 
         // 1. Load session
         Session session = sessionRepository.findById(id)
@@ -56,13 +58,15 @@ public class ChatController {
         List<ChatMessage> history = chatMessageRepository
                 .findBySessionIdOrderBySequenceNumberAsc(id);
 
-        // 5. Create emitter and delegate to ChatService
+        // 5. Set Vercel AI stream header directly on response (before emitter starts)
+        response.setHeader("X-Vercel-AI-Data-Stream", "v1");
+
+        // 6. Create emitter and delegate to ChatService
         ResponseBodyEmitter emitter = new ResponseBodyEmitter();
         chatService.streamResponse(session, history, userText, emitter);
 
         return ResponseEntity.ok()
                 .contentType(MediaType.TEXT_PLAIN)
-                .header("X-Vercel-AI-Data-Stream", "v1")
                 .body(emitter);
     }
 
