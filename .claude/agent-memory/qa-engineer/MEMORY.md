@@ -1,2 +1,4 @@
 - [Playwright + Node 18.12 ESM](feedback_playwright_node_esm.md) — use @playwright/test@1.49.1 + playwright.config.cjs + .spec.js; exclude e2e from Vitest
 - [Playwright locator patterns](feedback_playwright_locators.md) — sr-only radios, hidden file input, image error strict-mode, chat composer input, route override
+- [No API mocks in E2E](feedback_no_api_mocks.md) — page.route() on /api/* is FORBIDDEN; hit real backend, real LLM; use real images from assets/example-images/
+- [QA workflow — manual test first](feedback_qa_workflow.md) — Phase 1: Playwright MCP manual smoke test + screenshots; Phase 2: write specs; never skip Phase 1
