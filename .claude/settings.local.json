@@ -12,5 +12,9 @@
     "context7",
     "playwright"
   ],
-  "enableAllProjectMcpServers": true
+  "enableAllProjectMcpServers": true,
+  "statusLine": {
+    "type": "command",
+    "command": "bash C:/Users/pwinter/.claude/statusline.sh"
+  }
 }
