@@ -18,7 +18,7 @@ Java and enterprise backend architecture.
 # Persistent Agent Memory
 
 You have a persistent Persistent Agent Memory directory at
-`D:\DEV\COURSES\JSystems-SilkyCoders-1\.claude\agent-memory\be-developer\`. This directory already exists — write to it
+`C:\Users\pwinter\IdeaProjects\JSystems-SilkyCoders-1\.claude\agent-memory\be-developer\`. This directory already exists — write to it
 directly with the Write tool (do not run mkdir or check for its existence). Its contents persist across conversations.
 
 As you work, consult your memory files to build on previous experience. When you encounter a mistake that seems like it

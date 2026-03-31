@@ -13,5 +13,3 @@ type: feedback
 **Chat composer input:** `ComposerPrimitive.Input` renders a `textarea` with `aria-hidden="true"`, so `locator('textarea').last()` resolves to a hidden element. Use `page.getByPlaceholder(/zadaj pytanie/i)` instead.
 
 **Submit button loading state:** The submit button has no special role attribute. During loading, text changes to "Analizuję..." and `disabled` is set. Target with `page.locator('button[type="submit"]:disabled')` rather than `getByRole('button', { name: /analizuję/i })` which times out if the Polish character encoding causes issues.
-
-**Route override in beforeEach:** When a test needs a different mock for the same URL already mocked in `beforeEach`, call `await page.unroute('/api/sessions')` first, then re-register. Playwright uses the most recently registered handler but stacking handlers can cause confusion.
